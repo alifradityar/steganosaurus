@@ -7,17 +7,17 @@
             <TabItem Header="Insert">
                 <Grid Background="#FFF" Margin="0,-2,0,2">
                     <Label Content="Select Picture" HorizontalAlignment="Left" Margin="27,20,0,0" VerticalAlignment="Top"/>
-                    <TextBox HorizontalAlignment="Left" Height="23" Margin="36,46,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Top" Width="146"/>
-                    <Button Content="Browse" HorizontalAlignment="Left" Margin="191,46,0,0" VerticalAlignment="Top" Width="58" Height="23" Background="White" BorderBrush="#FFA6A6A6" BorderThickness="1"/>
+                    <TextBox Name="selectPictureTextBox" HorizontalAlignment="Left" Height="23" Margin="36,46,0,0" TextWrapping="NoWrap"  VerticalAlignment="Top" Width="146" MaxLines="1"  />
+                    <Button Content="Browse" Click="Button_Click_1" HorizontalAlignment="Left" Margin="191,46,0,0" VerticalAlignment="Top" Width="58" Height="23" Background="White" BorderBrush="#FFA6A6A6" BorderThickness="1"/>
                     <Label Content="Select Message" HorizontalAlignment="Left" Margin="27,81,0,0" VerticalAlignment="Top"/>
-                    <TextBox HorizontalAlignment="Left" Height="23" Margin="36,107,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Top" Width="146"/>
-                    <Button Content="Browse" HorizontalAlignment="Left" Margin="191,107,0,0" VerticalAlignment="Top" Width="58" Height="23" Background="White" BorderBrush="#FFA6A6A6" BorderThickness="1"/>
+                    <TextBox Name="selectMessageTextBox" HorizontalAlignment="Left" Height="23" Margin="36,107,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Top" Width="146"/>
+                    <Button Content="Browse" Click="Button_Click_2" HorizontalAlignment="Left" Margin="191,107,0,0" VerticalAlignment="Top" Width="58" Height="23" Background="White" BorderBrush="#FFA6A6A6" BorderThickness="1"/>
                     <Label Content="Encryption Key" HorizontalAlignment="Left" Margin="268,81,0,0" VerticalAlignment="Top"/>
                     <TextBox Height="23" Margin="277,107,36,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Top"/>
                     <Label Content="Algorithm" HorizontalAlignment="Left" Margin="268,20,0,0" VerticalAlignment="Top"/>
                     <ComboBox HorizontalAlignment="Left" Margin="277,47,0,0" VerticalAlignment="Top" Width="198"/>
                     <ProgressBar HorizontalAlignment="Left" Height="4" Margin="36,205,0,0" VerticalAlignment="Top" Width="439"/>
-                    <Button Content="Process" HorizontalAlignment="Left" Margin="405,141,0,0" VerticalAlignment="Top" Width="75" Height="23" Background="#FF22A7F0" BorderBrush="White" BorderThickness="0"/>
+                    <Button Content="Process" HorizontalAlignment="Left" Margin="405,141,0,0" VerticalAlignment="Top" Width="75" Height="23" Background="#FF87CBF0" BorderBrush="White" BorderThickness="0"/>
                     <Label Content="Completed" HorizontalAlignment="Left" Margin="30,204,0,0" VerticalAlignment="Top"/>
                 </Grid>
             </TabItem>
@@ -31,7 +31,14 @@
                 </Grid>
             </TabItem>
             <TabItem Header="Extract">
-                <Grid Background="#FFF"/>
+                <Grid Background="#FFF">
+                    <Label Content="Select Picture" HorizontalAlignment="Left" Margin="27,20,0,0" VerticalAlignment="Top"/>
+                    <TextBox HorizontalAlignment="Left" Height="23" Margin="36,46,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Top" Width="365"/>
+                    <Button Content="Browse" HorizontalAlignment="Left" Margin="417,46,0,0" VerticalAlignment="Top" Width="58" Height="23" Background="White" BorderBrush="#FFA6A6A6" BorderThickness="1"/>
+                    <Label Content="Encryption Key" HorizontalAlignment="Left" Margin="27,81,0,0" VerticalAlignment="Top" Width="193"/>
+                    <TextBox Height="23" Margin="36,107,36,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Top"/>
+                    <Button Content="Process" HorizontalAlignment="Left" Margin="405,141,0,0" VerticalAlignment="Top" Width="75" Height="23" Background="#FF87CBF0" BorderBrush="White" BorderThickness="0"/>
+                </Grid>
             </TabItem>
         </TabControl>
         
