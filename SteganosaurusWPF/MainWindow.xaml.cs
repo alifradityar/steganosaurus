@@ -20,9 +20,15 @@ namespace SteganosaurusWPF
     /// </summary>
     public partial class MainWindow : Window
     {
+        public List<string> data;
         public MainWindow()
         {
             InitializeComponent();
+            data = new List<String>();
+            data.Add("Algoritma 1");
+            data.Add("Algoritma 2");
+            data.Add("Algoritma 3");
+            algorithmComboBox.DataContext = data;
         }
 
         // Browse picture in extraction tab
