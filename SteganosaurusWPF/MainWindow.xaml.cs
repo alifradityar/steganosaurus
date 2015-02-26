@@ -50,7 +50,6 @@ namespace SteganosaurusWPF
             }
         }
 
-<<<<<<< HEAD
         private void PRNG(int seed_, int max_)
         {
             // Manually input the Seed, or you can make it random like my code above.
@@ -101,11 +100,7 @@ namespace SteganosaurusWPF
             // display the random number.
             //rtOutput.Text = display;
         }
-
-        private void Button_Click_2(object sender, RoutedEventArgs e)
-=======
         private void BrowseMessageButtonOnClick(object sender, RoutedEventArgs e)
->>>>>>> 4a2b2c72b0c82bb6066255059660d565f4995eef
         {
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
             dlg.FileName = "File"; // Default file name
