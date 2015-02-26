@@ -17,38 +17,188 @@ using System.Windows.Shapes;
 namespace SteganosaurusWPF
 {
     
-
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
         int maxFileSize = 8 * 1024 * 1024;
+        
         public List<string> data;
+        
         public MainWindow()
         {
             InitializeComponent();
         }
 
-        // Browse picture in extraction tab
-        private void BrowsePictureButtonOnClick(object sender, RoutedEventArgs e)
+        #region UI Helpers
+        private string ShowOpenFileDialog()
+        {
+            return ShowOpenFileDialog("", "All file (*.*)|*.*");
+        }
+        
+        private string ShowOpenFileDialog(string defaultExt, string filter)
         {
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-            dlg.FileName = "Picture"; // Default file name
-            dlg.DefaultExt = ".jpg"; // Default file extension
-            dlg.Filter = "JPG Image (.jpg)|*.jpg"; // Filter files by extension 
+            dlg.FileName = "";
+            dlg.DefaultExt = defaultExt;
+            dlg.Filter = filter;
 
-            // Show open file dialog box
             Nullable<bool> result = dlg.ShowDialog();
 
-            // Process open file dialog box results 
             if (result == true)
             {
-                // Open document 
-                string filename = dlg.FileName;
-                selectPictureTextBox.Text = filename;
+                return dlg.FileName;
+            }
+            else
+                return null;
+        }
+
+        private string ShowSaveFileDialog(string fileName, string defaultExt, string filter)
+        {
+            Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+            dlg.FileName = fileName;
+            dlg.DefaultExt = defaultExt;
+            dlg.Filter = filter;
+
+            Nullable<bool> result = dlg.ShowDialog();
+
+            if (result == true)
+            {
+                return dlg.FileName;
+            }
+            else
+            {
+                return null;
             }
         }
+
+        private void ShowError(string title, string desciption)
+        {
+            MessageBoxButton button = MessageBoxButton.OK;
+            MessageBoxImage icon = MessageBoxImage.Error;
+            MessageBox.Show(title, desciption, button, icon);
+        }
+
+        #endregion
+
+        private void BrowsePictureButtonOnClick(object sender, RoutedEventArgs e)
+        {
+            string fileName = ShowOpenFileDialog(".bmp", "Bitmap Image (.bmp)|*.bmp");
+            if (fileName != null)
+                selectPictureTextBox.Text = fileName;
+        }
+
+        private void BrowseMessageButtonOnClick(object sender, RoutedEventArgs e)
+        {
+            string fileName = ShowOpenFileDialog();
+            if (fileName != null)
+                selectMessageTextBox.Text = fileName;
+        }
+
+        private void ProcessInsertionButtonOnClick(object sender, RoutedEventArgs e)
+        {
+            string filePicturePath = selectPictureTextBox.Text;
+            string fileMessagePath = selectMessageTextBox.Text;
+            string key = encryptionKeyTextBox.Text;
+
+            if (!File.Exists(filePicturePath))
+                ShowError("File Path Error", "Your path for picture file is incorrect, please make sure the file exist");
+            else if (!File.Exists(fileMessagePath))
+                ShowError("File Path Error", "Your path for message file is incorrect, please make sure the file exist");
+            else
+            {
+                FileInfo fileInfoPicture = new FileInfo(filePicturePath);
+                FileInfo fileInfoMessage = new FileInfo(fileMessagePath);
+
+                if (fileInfoPicture.Length > maxFileSize || fileInfoMessage.Length > maxFileSize)
+                    ShowError("File Limit Error", "Your file is too big, please select another file");
+                else
+                {
+                    BitmapSource bitmapSourceBefore = new BitmapImage(new Uri(filePicturePath));
+                    BitmapSource bitmapSourceAfter = null;
+
+                    switch (algorithmComboBox.SelectedIndex)
+                    {
+                        case 0:
+                            if (Steganography.canDoInsertionWithAlgorithmStandard(filePicturePath, fileMessagePath))
+                                bitmapSourceAfter = Steganography.InsertionWithAlgorithmStandard(filePicturePath, fileMessagePath, key);
+                            else
+                                ShowError("File Limit Error", "Your message file can't fit into the picture");
+                            break;
+                        case 1:
+                            Steganography.InsertionWithAlgorithmLiao(filePicturePath, fileMessagePath, key);
+                            break;
+                        case 2:
+                            Steganography.InsertionWithAlgorithmSwain(filePicturePath, fileMessagePath, key);
+                            break;
+                        default:
+                                ShowError("Form Error", "Please select the algoritm");
+                            break;
+
+                    }
+                    imageBefore.Source = bitmapSourceBefore;
+                    imageAfter.Source = bitmapSourceAfter;
+
+                    string fileName = ShowSaveFileDialog(System.IO.Path.GetFileNameWithoutExtension(filePicturePath) + "-saurus", ".bmp", "Bitmap Image (.bmp)|*.bmp");
+                    if (fileName != null)
+                    {
+                        using (var fileStream = new FileStream(fileName, FileMode.Create))
+                        {
+                            BitmapEncoder encoder = new BmpBitmapEncoder();
+                            encoder.Frames.Add(BitmapFrame.Create(bitmapSourceAfter));
+                            encoder.Save(fileStream);
+                        }
+                    }
+
+                }
+            }
+        }
+
+        private void BrowsePictureExtractOnClick(object sender, RoutedEventArgs e)
+        {
+            string fileName = ShowOpenFileDialog(".bmp", "Bitmap Image (.bmp)|*.bmp");
+            if (fileName != null)
+                selectPictureExtractTextBox.Text = fileName;
+        }
+
+        private void ProcessExtrationButtonOnClick(object sender, RoutedEventArgs e)
+        {
+            string filePicturePath = selectPictureExtractTextBox.Text;
+            string key = encryptionKeyExtractTextBox.Text;
+
+            if (!File.Exists(filePicturePath))
+                ShowError("File Path Error", "Your path for picture file is incorrect, please make sure the file exist");
+            else
+            {
+                FileTemp fileTemp = null;
+                switch (algorithmComboBox.SelectedIndex)
+                {
+                    case 0:
+                        Console.WriteLine("check 1");
+                        fileTemp = Steganography.ExtractionWithAlgorithmStandard(filePicturePath, key);
+                        Console.WriteLine("check 2");
+                        break;
+                    case 1:
+                        //Steganography.InsertionWithAlgorithmLiao(filePicturePath, fileMessagePath, key);
+                        break;
+                    case 2:
+                        //Steganography.InsertionWithAlgorithmSwain(filePicturePath, fileMessagePath, key);
+                        break;
+                    default:
+                        ShowError("Form Error", "Please select the algoritm");
+                        break;
+
+                }
+                string fileName = ShowSaveFileDialog(fileTemp.Name, "", "All file|*.*");
+                if (fileName != null)
+                {
+                    File.WriteAllBytes(fileName, fileTemp.Data);
+                }
+            }
+        }
+
+        #region Temporary Function/Procedure
 
         private void PRNG(int seed_, int max_)
         {
@@ -66,7 +216,7 @@ namespace SteganosaurusWPF
             int number;
             // this dictionary is for saving the number generated by random, if exist, 
             //do random again.
-            Dictionary<int, int> num = new Dictionary<int,int>();
+            Dictionary<int, int> num = new Dictionary<int, int>();
 
             for (int i = 1; i < max; i++)
             {
@@ -78,7 +228,7 @@ namespace SteganosaurusWPF
                     {
                         number = rand.Next(min, max);
                         if (num.ContainsKey(number))
-                        { 
+                        {
                             // if exist do nothing and then random again while true  
                         }
                         else
@@ -100,89 +250,6 @@ namespace SteganosaurusWPF
             // display the random number.
             //rtOutput.Text = display;
         }
-        private void BrowseMessageButtonOnClick(object sender, RoutedEventArgs e)
-        {
-            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-            dlg.FileName = "File"; // Default file name
-
-            // Show open file dialog box
-            Nullable<bool> result = dlg.ShowDialog();
-
-            // Process open file dialog box results 
-            if (result == true)
-            {
-                // Open document 
-                string filename = dlg.FileName;
-                selectMessageTextBox.Text = filename;
-            }
-        }
-
-        private void ProcessInsertionButtonOnClick(object sender, RoutedEventArgs e)
-        {
-            string filePicturePath = selectPictureTextBox.Text;
-            string fileMessagePath = selectMessageTextBox.Text;
-            string key = encryptionKeyTextBox.Text;
-            if (!File.Exists(filePicturePath))
-            {
-                string messageBoxText = "Your path for picture file is incorrect, please make sure the file exist";
-                string caption = "File Path Error";
-                MessageBoxButton button = MessageBoxButton.OK;
-                MessageBoxImage icon = MessageBoxImage.Error;
-                MessageBox.Show(messageBoxText, caption, button, icon);
-            }
-            else if (!File.Exists(fileMessagePath))
-            {
-                string messageBoxText = "Your path for message file is incorrect, please make sure the file exist";
-                string caption = "File Path Error";
-                MessageBoxButton button = MessageBoxButton.OK;
-                MessageBoxImage icon = MessageBoxImage.Error;
-                MessageBox.Show(messageBoxText, caption, button, icon);
-            }
-            else
-            {
-                FileInfo fileInfoPicture = new FileInfo(filePicturePath);
-                FileInfo fileInfoMessage = new FileInfo(fileMessagePath);
-                Console.WriteLine(fileInfoPicture.Length);
-                if (fileInfoPicture.Length > maxFileSize || fileInfoMessage.Length > maxFileSize)
-                {
-                    string messageBoxText = "Your file is too big, please select another file";
-                    string caption = "File Size Error";
-                    MessageBoxButton button = MessageBoxButton.OK;
-                    MessageBoxImage icon = MessageBoxImage.Error;
-                    MessageBox.Show(messageBoxText, caption, button, icon);
-                }
-                else
-                {
-                    Byte[] byteImage = File.ReadAllBytes(filePicturePath);
-                    Byte[] byteMessage = File.ReadAllBytes(fileMessagePath);
-                    Image icon = new Image();
-
-
-                    switch (algorithmComboBox.SelectedIndex)
-                    {
-                        case 0:
-                            Steganography.InsertionWithAlgorithmStandard(byteImage, byteMessage, key);
-                            break;
-                        case 1:
-                            Steganography.InsertionWithAlgorithmLiao(byteImage, byteMessage, key);
-                            break;
-                        case 2:
-                            Steganography.InsertionWithAlgorithmSwain(byteImage, byteMessage, key);
-                            break;
-                        default:
-                            break;
-                    }
-
-                    BitmapImage bmImage = new BitmapImage();
-                    bmImage.BeginInit();
-                    bmImage.UriSource = new Uri(filePicturePath, UriKind.Absolute);
-                    bmImage.EndInit();
-                    imageBefore.Source = bmImage;
-
-                }
-            }
-        }
-
-        
+        #endregion
     }
 }
