@@ -147,8 +147,9 @@ namespace SteganosaurusWPF
                         {
                             BitmapEncoder encoder = new BmpBitmapEncoder();
                             encoder.Frames.Add(BitmapFrame.Create(bitmapSourceAfter));
-                            encoder.Save(fileStream);
+                            encoder.Save(fileStream);   
                         }
+                        PRNSLabel.Text = Steganography.CalculatePSNR(filePicturePath, fileName) + " dB";
                     }
 
                 }
@@ -191,7 +192,10 @@ namespace SteganosaurusWPF
                 string fileName = ShowSaveFileDialog(fileTemp.Name, "", "All file|*.*");
                 if (fileName != null)
                 {
+                    //Console.WriteLine(fileName);
                     File.WriteAllBytes(fileName, fileTemp.Data);
+
+                    
                 }
             }
         }

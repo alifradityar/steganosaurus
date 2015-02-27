@@ -35,6 +35,8 @@
                     <Image x:Name="imageBefore" HorizontalAlignment="Left" Height="185" Margin="41,36,0,0" VerticalAlignment="Top" Width="185" Source="Lenna.png"/>
                     <Label Content="With message" HorizontalAlignment="Left" Margin="281,10,0,0" VerticalAlignment="Top"/>
                     <Image x:Name="imageAfter" HorizontalAlignment="Left" Height="185" Margin="295,36,0,0" VerticalAlignment="Top" Width="185" Source="Lenna.png"/>
+                    <Label Content="PRNS" HorizontalAlignment="Left" Margin="242,180,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.248,0.051"/>
+                    <TextBlock x:Name="PRNSLabel" Text="1800" TextAlignment="Center" HorizontalAlignment="Left" Margin="242,206,0,0" VerticalAlignment="Top" Width="39"/>
 
                 </Grid>
             </TabItem>

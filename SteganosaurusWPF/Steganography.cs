@@ -152,6 +152,38 @@ namespace SteganosaurusWPF
 
             return file;
         }
+
+        public static double CalculatePSNR(string imagePath1, string imagePath2)
+        {
+            // Read pixel image before
+            Console.WriteLine("Halo 1");
+            BitmapImage bitmapImage = new BitmapImage(new Uri(imagePath1));
+            int height = bitmapImage.PixelHeight;
+            int width = bitmapImage.PixelWidth;
+            int nStride = (bitmapImage.PixelWidth * bitmapImage.Format.BitsPerPixel + 7) / 8;
+            byte[] pixels = new byte[bitmapImage.PixelHeight * nStride];
+            bitmapImage.CopyPixels(pixels, nStride, 0);
+
+            // Read pixel image after
+            Console.WriteLine("Halo 2");
+            BitmapImage bitmapImage2 = new BitmapImage(new Uri(imagePath2));
+            int height2 = bitmapImage2.PixelHeight;
+            int width2 = bitmapImage2.PixelWidth;
+            int nStride2 = (bitmapImage2.PixelWidth * bitmapImage2.Format.BitsPerPixel + 7) / 8;
+            byte[] pixels2 = new byte[bitmapImage2.PixelHeight * nStride];
+            bitmapImage2.CopyPixels(pixels2, nStride2, 0);
+
+            Console.WriteLine("Halo 3");
+            double totalDif = 0;
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                double dif = (pixels[i] - pixels2[i]) * (pixels[i] - pixels2[i]);
+                totalDif += dif;
+            }
+            double rms = Math.Sqrt(totalDif);
+            double psnr = 20 * Math.Log10(256 / rms);
+            return psnr;
+        }
     }
 
     
