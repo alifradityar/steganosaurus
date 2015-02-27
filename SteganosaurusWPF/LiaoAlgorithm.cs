@@ -101,6 +101,39 @@ namespace SteganosaurusWPF
             return tempres;
         }
 
+        public BitArray liaoDecrypt(byte[] pixels, int T, int Kl, int Kh)
+        {
+            float D;
+            int k;
+            //Step1
+            int[] convd = Array.ConvertAll(pixels, c => (int)c);
+            D = calculateDiff(convd);
+            //Step2
+            k = thresholding(D, T, Kl, Kh);
+            BitArray result = new BitArray(k * 4);
+            //Step3
+            if (!checkErrorBlock(convd, D, T))
+            {
+                return null;
+            }
+            else
+            {
+                int msgcounter = 0;
+                byte[] res = new byte[4];
+                for (int x = 0; x < 4; x++)
+                {
+                    BitArray b = new BitArray(new byte[] { pixels[x] });
+                    BitArray msgtemp = new BitArray(k);
+                    for (int i = k - 1; i >= 0; i--)
+                    {
+                        result[msgcounter] = b[i];
+                        msgcounter++;
+                    }
+                }
+                return result;
+            }
+        }
+
         private int thresholding(float D, int T, int Kl, int Kh)
         {
             if (D <= T) return Kl;
