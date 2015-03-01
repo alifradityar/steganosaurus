@@ -36,6 +36,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -55,6 +56,8 @@
     </ApplicationDefinition>
     <Compile Include="BitUtil.cs" />
     <Compile Include="FileTemp.cs" />
+    <Compile Include="LiaoAlgorithm.cs" />
+    <Compile Include="LockBitmap.cs" />
     <Compile Include="PRNG.cs" />
     <Compile Include="Steganography.cs" />
     <Compile Include="Viginere.cs" />

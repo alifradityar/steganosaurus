@@ -6,12 +6,16 @@ using System.Text;
 using System.Drawing;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Media.Imaging;
 
 namespace SteganosaurusWPF
 {
     class LiaoAlgorithm
     {
-        byte ConvertToByte(BitArray bits)
+        public int recentk = 0;
+
+        public static byte ConvertToByte(BitArray bits)
         {
             if (bits.Count != 8)
             {
@@ -22,19 +26,22 @@ namespace SteganosaurusWPF
             return bytes[0];
         }
 
-        public byte[] liaoEncrypt(byte[] pixels, int T, int Kl, int Kh, byte[] msg) {
+        public byte[] liaoEncrypt(byte[] pixels, int T, int Kl, int Kh, BitArray bitmsg) {
             float D;
             int k;
+            /*
             BitArray bitmsg = new BitArray(msg);
             foreach (Object obj in bitmsg)
             {
                 Debug.Write(obj + " ");
             }
+             * */
             //Step1
             int[] convd = Array.ConvertAll(pixels, c => (int)c);
             D = calculateDiff(convd);
             //Step2
             k = thresholding(D, T, Kl, Kh);
+            recentk = k;
             //Step3
             if (!checkErrorBlock(convd,D,T)) {
                 return null;
@@ -48,8 +55,10 @@ namespace SteganosaurusWPF
                 BitArray msgtemp = new BitArray(k);
                 for (int i = k - 1; i >= 0; i--)
                 {
-                    msgtemp[i] = bitmsg[msgcounter];
-                    msgcounter++;
+                    if (bitmsg.Length > msgcounter+1) {
+                        msgtemp[i] = bitmsg[msgcounter];
+                        msgcounter++;
+                    }
                 }
                 for (int i = 0; i < k; i++)
                 {
@@ -111,6 +120,7 @@ namespace SteganosaurusWPF
             //Step2
             k = thresholding(D, T, Kl, Kh);
             BitArray result = new BitArray(k * 4);
+            recentk = k;
             //Step3
             if (!checkErrorBlock(convd, D, T))
             {
@@ -181,6 +191,15 @@ namespace SteganosaurusWPF
             return array[0];
         }
 
+        public static BitmapSource ConvertBitmap(Bitmap source)
+        {
+            return System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
+                          source.GetHbitmap(),
+                          IntPtr.Zero,
+                          Int32Rect.Empty,
+                          BitmapSizeOptions.FromEmptyOptions());
+        }
+
         byte modLSBsubs(byte msg, byte ori, int k)
         {
             BitArray bmsg = new BitArray(new byte[] { msg });
@@ -200,10 +219,10 @@ namespace SteganosaurusWPF
             else if (result == moddiff) return (byte)intmod;
             else return (byte)intmod2;
         }
-
+        /*
         static void Main(string[] args)
         {
-            /*
+            
             Bitmap bmp = (Bitmap)Image.FromFile(@"D:/peppers.bmp", true);
             LockBitmap lockBitmap = new LockBitmap(bmp);
             lockBitmap.LockBits();
@@ -227,7 +246,7 @@ namespace SteganosaurusWPF
             }
             lockBitmap.UnlockBits();
             bmp.Save("newpeppers.bmp");
-            */
+            
             LiaoAlgorithm it = new LiaoAlgorithm();
             byte[] newbtest = {139,146,137,142};
             bool[] inputarray1 = { false, false, false, true, true, true, true, true };
@@ -242,6 +261,6 @@ namespace SteganosaurusWPF
             {
                 Debug.WriteLine(newbtest[i]);
             }   
-        }
+        }*/
     }
 }
