@@ -129,7 +129,7 @@ namespace SteganosaurusWPF
                             Steganography.InsertionWithAlgorithmLiao(filePicturePath, fileMessagePath, key);
                             break;
                         case 2:
-                            Steganography.InsertionWithAlgorithmSwain(filePicturePath, fileMessagePath, key);
+                            bitmapSourceAfter = Steganography.InsertionWithAlgorithmSwain(filePicturePath, fileMessagePath, key);
                             break;
                         default:
                                 ShowError("Form Error", "Please select the algoritm");
@@ -171,7 +171,7 @@ namespace SteganosaurusWPF
             else
             {
                 FileTemp fileTemp = null;
-                switch (algorithmComboBox.SelectedIndex)
+                switch (algorithmExtractComboBox.SelectedIndex)
                 {
                     case 0:
                         fileTemp = Steganography.ExtractionWithAlgorithmStandard(filePicturePath, key);
@@ -180,7 +180,7 @@ namespace SteganosaurusWPF
                         //Steganography.InsertionWithAlgorithmLiao(filePicturePath, fileMessagePath, key);
                         break;
                     case 2:
-                        //Steganography.InsertionWithAlgorithmSwain(filePicturePath, fileMessagePath, key);
+                        fileTemp = Steganography.ExtractionWithAlgorithmSwain(filePicturePath, key);
                         break;
                     default:
                         ShowError("Form Error", "Please select the algoritm");
