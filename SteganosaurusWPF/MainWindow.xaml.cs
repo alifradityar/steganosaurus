@@ -126,7 +126,8 @@ namespace SteganosaurusWPF
                                 ShowError("File Limit Error", "Your message file can't fit into the picture");
                             break;
                         case 1:
-                            Steganography.InsertionWithAlgorithmLiao(filePicturePath, fileMessagePath, key);
+                            bitmapSourceAfter = Steganography.InsertionWithAlgorithmLiao(filePicturePath, fileMessagePath, key);
+                            Console.WriteLine("liao stego success");
                             break;
                         case 2:
                             bitmapSourceAfter = Steganography.InsertionWithAlgorithmSwain(filePicturePath, fileMessagePath, key);
@@ -174,10 +175,12 @@ namespace SteganosaurusWPF
                 switch (algorithmExtractComboBox.SelectedIndex)
                 {
                     case 0:
+                        Console.WriteLine("standard");
                         fileTemp = Steganography.ExtractionWithAlgorithmStandard(filePicturePath, key);
                         break;
                     case 1:
-                        //Steganography.InsertionWithAlgorithmLiao(filePicturePath, fileMessagePath, key);
+                        Console.WriteLine("liao");                        
+                        fileTemp = Steganography.ExtractionWithAlgorithmLiao(filePicturePath, key);
                         break;
                     case 2:
                         fileTemp = Steganography.ExtractionWithAlgorithmSwain(filePicturePath, key);
