@@ -177,11 +177,6 @@ namespace SteganosaurusWPF
             return bs;         
         }
 
-        public static BitmapSource InsertionWithAlgorithmSwain(string imagePath, string messagePath, string key)
-        {
-            return null;
-        }
-
         public static FileTemp ExtractionWithAlgorithmStandard(string imagePath, string key)
         {
             // Read pixel
@@ -337,11 +332,6 @@ namespace SteganosaurusWPF
             file.Data = messageBytes;
 
             return file;
-        }
-
-        public static BitmapSource InsertionWithAlgorithmLiao(string imagePath, string messagePath, string key)
-        {
-            return null;
         }
 
         public static int s2(int x)
