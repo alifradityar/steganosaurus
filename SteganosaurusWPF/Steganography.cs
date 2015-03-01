@@ -296,6 +296,40 @@ namespace SteganosaurusWPF
             return file;
         }
 
+        public static double CalculatePSNR2(string imagePath1, string imagePath2)
+        {
+            Bitmap bmp1 = (Bitmap)Image.FromFile(imagePath1, true);
+            LockBitmap lockBitmap1 = new LockBitmap(bmp1);
+            lockBitmap1.LockBits();
+            Bitmap bmp2 = (Bitmap)Image.FromFile(imagePath2, true);
+            LockBitmap lockBitmap2 = new LockBitmap(bmp2);
+            lockBitmap2.LockBits();
+            int cpp = 3;
+            if ((bmp1.PixelFormat == System.Drawing.Imaging.PixelFormat.Format8bppIndexed) || (bmp2.PixelFormat == System.Drawing.Imaging.PixelFormat.Format8bppIndexed))
+            {
+                cpp = 1;
+            }
+
+
+            double totalDif = 0;
+            for (int i = 0; i < lockBitmap1.Height; i++)
+            {
+                for (int j = 0; j < lockBitmap1.Width; j++)
+                {
+                    totalDif += Math.Pow((lockBitmap1.GetPixel(i, j).R - lockBitmap2.GetPixel(i, j).R), 2);
+                    if (cpp == 3)
+                    {
+                        totalDif += Math.Pow((lockBitmap1.GetPixel(i, j).G - lockBitmap2.GetPixel(i, j).G), 2);
+                        totalDif += Math.Pow((lockBitmap1.GetPixel(i, j).B - lockBitmap2.GetPixel(i, j).B), 2);
+                    }
+                }
+            }
+            double rms = Math.Sqrt(totalDif / (lockBitmap1.Height * lockBitmap1.Width * cpp));
+            double psnr = 20 * Math.Log10(256 / rms);
+            Console.WriteLine("PSNR = " + psnr);
+            return psnr;   
+        }
+
         public static double CalculatePSNR(string imagePath1, string imagePath2)
         {
             // Read pixel image before
@@ -323,7 +357,7 @@ namespace SteganosaurusWPF
                 double dif = (pixels[i] - pixels2[i]) * (pixels[i] - pixels2[i]);
                 totalDif += dif;
             }
-            double rms = Math.Sqrt(totalDif / (bitmapImage.PixelHeight * bitmapImage.PixelWidth));
+            double rms = Math.Sqrt(totalDif / (bitmapImage.PixelHeight * bitmapImage.PixelWidth * 3));
             double psnr = 20 * Math.Log10(256 / rms);
             Console.WriteLine("PSNR = " + psnr);
             return psnr;
