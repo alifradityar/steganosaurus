@@ -404,7 +404,7 @@ namespace SteganosaurusWPF
                 x[8] = x[8].SetBit(0, false);
                 x[8] = x[8].SetBit(1, true);
             }
-            else
+            else if (n == 5)
             {
                 x[8] = x[8].SetBit(0, true);
                 x[8] = x[8].SetBit(1, true);
@@ -421,9 +421,11 @@ namespace SteganosaurusWPF
                         if (byteCnt >= message.Length)
                             break;
                         cnt++;
-                        byte mc = message[byteCnt];
-                        bool m = mc.GetBit(bitCnt);
-                        x[i] = x[i].SetBit(j, m);
+                        if (message[byteCnt].GetBit(bitCnt))
+                            Console.Write(1);
+                        else
+                            Console.Write(0);
+                        x[i] = x[i].SetBit(j, message[byteCnt].GetBit(bitCnt));
                         bitCnt++;
                         if (bitCnt == 8)
                         {
@@ -472,6 +474,7 @@ namespace SteganosaurusWPF
                 n = 5;
 
 //            return z(y,x,n);
+            Console.WriteLine();
             return y(x, n, message);
         }
 
@@ -528,6 +531,9 @@ namespace SteganosaurusWPF
             // process per block
             for (int i = 0; i < pixels.Length-8; i += 9)
             {
+                if (messageExtended.Length <= byteCnt)
+                    break;
+
                 // copy pixels to block
                 byte[] block = new byte[9];
                 block[0] = pixels[i];
@@ -560,6 +566,8 @@ namespace SteganosaurusWPF
         public static byte[] x(byte[] y, int n, int size)
         {
             byte[] ret = new byte[size];
+            int byteCnt2 = 0;
+            int bitCnt2 = 0;
             for (int i = 0; i < 9; i++)
             {
                 for (int j = n - 1; j >= 0; j--)
@@ -567,12 +575,17 @@ namespace SteganosaurusWPF
                         continue;
                     else
                     {
-                        ret[byteCnt] = ret[byteCnt].SetBit(bitCnt, y[i].GetBit(j));
-                        bitCnt++;
-                        if (bitCnt == 8)
+                        if (y[i].GetBit(j))
+                            Console.Write(1);
+                        else
+                            Console.Write(0);
+                        //x[i] = x[i].SetBit(j, message[byteCnt].GetBit(bitCnt));
+                        ret[byteCnt2] = ret[byteCnt2].SetBit(bitCnt2, y[i].GetBit(j));
+                        bitCnt2++;
+                        if (bitCnt2 == 8)
                         {
-                            bitCnt = 0;
-                            byteCnt++;
+                            bitCnt2 = 0;
+                            byteCnt2++;
                         }
                     }
             }
@@ -590,7 +603,7 @@ namespace SteganosaurusWPF
                 n = 4;
             else if (s[8].GetBit(0) && s[8].GetBit(1)) // 5-bit
                 n = 5;
-
+            Console.WriteLine();
             return x(s, n, n * 9 - 2);
         }
 
@@ -603,15 +616,19 @@ namespace SteganosaurusWPF
             int nStride = (bitmapImage.PixelWidth * bitmapImage.Format.BitsPerPixel + 7) / 8;
             byte[] pixels = new byte[bitmapImage.PixelHeight * nStride];
             bitmapImage.CopyPixels(pixels, nStride, 0);
-            
+
             // Get message
-            byte[] messageExtended = new byte[]{};
+            int process = 0;
+            Int32 filenameLength = 0, messagelength = 0;
+            byte[] messageExtended = new byte[] { }, fileNameLengthBytes, fileNameBytes, messageLengthBytes, messageBytesBeforeDecrypt, messageBytes;
+            string fileName = "";
+            FileTemp file = null;
+            byteCnt = 0;
+            bitCnt = 0;
             // process per block
             for (int i = 0; i < pixels.Length - 8; i += 9)
             {
                 // copy pixels to block
-                byteCnt = 0;
-                bitCnt = 0;
                 byte[] block = new byte[9];
                 block[0] = pixels[i];
                 block[1] = pixels[i + 1];
@@ -625,53 +642,67 @@ namespace SteganosaurusWPF
                 byte[] newMessage = message(block);
                 byte[] prevMessage = messageExtended;
                 messageExtended = new byte[newMessage.Length + prevMessage.Length];
-//                Console.WriteLine(messageExtended.Length);
                 for (int j = 0; j < prevMessage.Length; j++)
                     messageExtended[j] = prevMessage[j];
                 for (int j = 0; j < newMessage.Length; j++)
-                    messageExtended[j+prevMessage.Length] = newMessage[j];
+                    messageExtended[j + prevMessage.Length] = newMessage[j];
+                if (process == 0 && messageExtended.Length >= 32)
+                {
+                    process++;
+                    fileNameLengthBytes = new byte[4];
+                    for (int j = 0; j < 4; j++)
+                    {
+                        fileNameLengthBytes[j] = messageExtended[byteCnt];
+                        byteCnt++;
+                    }
+                    filenameLength = BitConverter.ToInt16(fileNameLengthBytes, 0);
+//                    Console.WriteLine(filenameLength);
+                }
+                else if (process == 1 && messageExtended.Length >= filenameLength * 8)
+                {
+                    process++;
+                    fileNameBytes = new byte[filenameLength * 2];
+                    for (int j = 0; j < filenameLength * 2; j++)
+                    {
+                        fileNameBytes[j] = messageExtended[byteCnt];
+                        byteCnt++;
+                    }
+                    fileName = "";
+                    for (int j = 0; j < filenameLength * 2; j += 2)
+                    {
+                        fileName = fileName + BitConverter.ToChar(fileNameBytes, i);
+                    }
+                    Console.WriteLine(fileName);
+                }
+                else if (process == 2 && messageExtended.Length >= 32)
+                {
+                    process++;
+                    messageLengthBytes = new byte[4];
+                    for (int j = 0; j < 4; j++)
+                    {
+                        messageLengthBytes[j] = messageExtended[byteCnt];
+                        byteCnt++;
+                    }
+                    messagelength = BitConverter.ToInt32(messageLengthBytes, 0);
+                }
+                else if (process == 3 && messageExtended.Length >= messagelength * 8)
+                {
+                    messageBytesBeforeDecrypt = new byte[messagelength];
+                    for (int j = 0; j < messagelength; j++)
+                    {
+                        messageBytesBeforeDecrypt[j] = messageExtended[byteCnt];
+                        byteCnt++;
+                    }
+
+                    messageBytes = Viginere.Decrypt(messageBytesBeforeDecrypt, key);
+
+                    file = new FileTemp(fileName);
+                    file.Data = messageBytes;
+                    return file;
+                }
             }
 
-
-            byte[] fileNameLengthBytes = new byte[4];
-            byteCnt = 0; 
-            for (int i = 0; i < 4; i++)
-            {
-                fileNameLengthBytes[i] = messageExtended[byteCnt];
-                byteCnt++;
-            }
-            Int32 filenameLength = BitConverter.ToInt16(fileNameLengthBytes, 0);
-            byte[] fileNameBytes = new byte[filenameLength * 2];
-            for (int i = 0; i < filenameLength * 2; i++)
-            {
-                fileNameBytes[i] = messageExtended[byteCnt];
-                byteCnt++;
-            }
-            string fileName = "";
-            for (int i = 0; i < filenameLength * 2; i += 2)
-            {
-                fileName = fileName + BitConverter.ToChar(fileNameBytes, i);
-            }
-            byte[] messageLengthBytes = new byte[4];
-            for (int i = 0; i < 4; i++)
-            {
-                messageLengthBytes[i] = messageExtended[byteCnt];
-                byteCnt++;
-            }
-            Int32 messagelength = BitConverter.ToInt32(messageLengthBytes, 0);
-            byte[] messageBytesBeforeDecrypt = new byte[messagelength];
-            for (int i = 0; i < messagelength; i++)
-            {
-                messageBytesBeforeDecrypt[i] = messageExtended[byteCnt];
-                byteCnt++;
-            }
-
-            byte[] messageBytes = Viginere.Decrypt(messageBytesBeforeDecrypt, key);
-
-            FileTemp file = new FileTemp(fileName);
-            file.Data = messageBytes;
-
-            return file;
+            return null;
         }
     }
 }
