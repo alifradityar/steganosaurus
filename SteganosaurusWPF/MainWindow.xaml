@@ -13,19 +13,30 @@
                     <Label Content="Select Picture" HorizontalAlignment="Left" Margin="27,20,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
                     <TextBox Name="selectPictureTextBox" HorizontalAlignment="Left" Height="23" Margin="36,46,0,0" TextWrapping="NoWrap"   VerticalAlignment="Top" Width="146" MaxLines="1" Grid.ColumnSpan="2"  />
                     <Button Content="Browse" Click="BrowsePictureButtonOnClick" HorizontalAlignment="Left" Margin="127,46,0,0" VerticalAlignment="Top" Width="58" Height="23" Background="White" BorderBrush="#FFA6A6A6" BorderThickness="1" Grid.Column="1"/>
-                    <Label Content="Select Message" HorizontalAlignment="Left" Margin="27,81,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
-                    <TextBox Name="selectMessageTextBox" HorizontalAlignment="Left" Height="23" Margin="36,107,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Top" Width="146" Grid.ColumnSpan="2"/>
-                    <Button Content="Browse" Click="BrowseMessageButtonOnClick" HorizontalAlignment="Left" Margin="127,107,0,0" VerticalAlignment="Top" Width="58" Height="23" Background="White" BorderBrush="#FFA6A6A6" BorderThickness="1" Grid.Column="1"/>
-                    <Label Content="Encryption Key" HorizontalAlignment="Left" Margin="204,81,0,0" VerticalAlignment="Top" Grid.Column="1"/>
-                    <TextBox x:Name="encryptionKeyTextBox" Height="23" Margin="213,107,36,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Top" Grid.Column="1"/>
+                    <StackPanel/>
+                    <Label Content="Select Message" HorizontalAlignment="Left" Margin="27,111,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
+                    <TextBox Name="selectMessageTextBox" HorizontalAlignment="Left" Height="23" Margin="36,137,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Top" Width="146" Grid.ColumnSpan="2"/>
+                    <Button Content="Browse" Click="BrowseMessageButtonOnClick" HorizontalAlignment="Left" Margin="127,137,0,0" VerticalAlignment="Top" Width="58" Height="23" Background="White" BorderBrush="#FFA6A6A6" BorderThickness="1" Grid.Column="1"/>
+                    <Label Content="Encryption Key" HorizontalAlignment="Left" Margin="204,111,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                    <TextBox x:Name="encryptionKeyTextBox" Height="23" Margin="213,137,36,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Top" Grid.Column="1"/>
                     <Label Content="Algorithm" HorizontalAlignment="Left" Margin="204,20,0,0" VerticalAlignment="Top" Grid.Column="1"/>
                     <ComboBox Name="algorithmComboBox"  SelectedIndex="0" HorizontalAlignment="Left" Margin="213,47,0,0" VerticalAlignment="Top" Width="198" Grid.Column="1">
                         <ComboBoxItem Content="Algoritma Standar" />
                         <ComboBoxItem Content="Algoritma Liao" />
                         <ComboBoxItem Content="Algoritma Swain" />
                     </ComboBox>
+                    <ComboBox Name="pixelformatbox"  SelectedIndex="0" HorizontalAlignment="Left" Margin="36,77,0,0" VerticalAlignment="Top" Width="198" Grid.ColumnSpan="2">
+                        <ComboBoxItem Content="Colored" />
+                        <ComboBoxItem Content="Grayscale" />
+                    </ComboBox>
+                    <Label Content="T :" HorizontalAlignment="Left" Margin="215,78,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                    <TextBox x:Name="paramThreshold" Height="23" Margin="237,81,164,0" TextWrapping="Wrap" Text="5"  VerticalAlignment="Top" Grid.Column="1"/>
+                    <Label Content="Kl :" HorizontalAlignment="Left" Margin="291,78,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                    <TextBox x:Name="paramKlow" Height="23" Margin="315,81,99,0" TextWrapping="Wrap" Text="2"  VerticalAlignment="Top" Grid.Column="1"/>
+                    <Label Content="Kh :" HorizontalAlignment="Left" Margin="353,78,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                    <TextBox x:Name="paramKhigh" Height="23" Margin="380,81,34,0" TextWrapping="Wrap" Text="3"  VerticalAlignment="Top" Grid.Column="1"/>
                     <ProgressBar HorizontalAlignment="Left" Height="4" Margin="36,205,0,0" VerticalAlignment="Top" Width="439" Value="60" Grid.ColumnSpan="2"/>
-                    <Button Click="ProcessInsertionButtonOnClick" Content="Process" HorizontalAlignment="Left" Margin="341,141,0,0" VerticalAlignment="Top" Width="75" Height="23" Background="White" BorderBrush="#FFA6A6A6" BorderThickness="1" Grid.Column="1"/>
+                    <Button Click="ProcessInsertionButtonOnClick" Content="Process" HorizontalAlignment="Left" Margin="341,171,0,0" VerticalAlignment="Top" Width="75" Height="23" Background="White" BorderBrush="#FFA6A6A6" BorderThickness="1" Grid.Column="1"/>
                     <Label Content="Completed" HorizontalAlignment="Left" Margin="30,204,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
                 </Grid>
             </TabItem>
@@ -55,6 +66,16 @@
                         <ComboBoxItem Content="Algoritma Standar" />
                         <ComboBoxItem Content="Algoritma Liao" />
                         <ComboBoxItem Content="Algoritma Swain" />
+                    </ComboBox>
+                    <Label Content="T :" HorizontalAlignment="Left" Margin="27,138,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                    <TextBox x:Name="xparamThreshold" Height="23" Margin="51,141,407,0" TextWrapping="Wrap" Text="5"  VerticalAlignment="Top" Grid.Column="1"/>
+                    <Label Content="Kl :" HorizontalAlignment="Left" Margin="92,138,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                    <TextBox x:Name="xparamKlow" Height="23" Margin="116,141,354,0" TextWrapping="Wrap" Text="2"  VerticalAlignment="Top" Grid.Column="1"/>
+                    <Label Content="Kh :" HorizontalAlignment="Left" Margin="151,138,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                    <TextBox x:Name="xparamKhigh" Height="23" Margin="178,141,292,0" TextWrapping="Wrap" Text="3"  VerticalAlignment="Top" Grid.Column="1"/>
+                    <ComboBox Name="xpixelformatbox"  SelectedIndex="0" HorizontalAlignment="Left" Margin="267,20,0,0" VerticalAlignment="Top" Width="198" Grid.Column="1">
+                        <ComboBoxItem Content="Colored" />
+                        <ComboBoxItem Content="Grayscale" />
                     </ComboBox>
                 </Grid>
             </TabItem>

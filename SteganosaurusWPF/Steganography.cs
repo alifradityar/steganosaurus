@@ -85,7 +85,7 @@ namespace SteganosaurusWPF
             return bitmapOutput;
         }
 
-        public static BitmapSource InsertionWithAlgorithmLiao(string imagePath, string messagePath, string key)
+        public static BitmapSource InsertionWithAlgorithmLiao(string imagePath, string messagePath, string key, int T, int Kl, int Kh, int cpp)
         {
             // Create extended message
             string fileName = Path.GetFileName(messagePath);
@@ -131,42 +131,96 @@ namespace SteganosaurusWPF
             LockBitmap lockBitmap = new LockBitmap(bmp);
             BitArray bitmsg = new BitArray(messageExtended);
             lockBitmap.LockBits();
+            
+            
+            System.Drawing.Color[] pixes = new System.Drawing.Color[4];
             byte[] pixelInput = new byte[4];
             bool looping = true;
             for (int i = 0; (i < lockBitmap.Width / 2) && looping; i++)
             {
                 for (int j = 0; j < lockBitmap.Height/2 && looping; j++)
                 {
-                    pixelInput[0] = lockBitmap.GetPixel(i * 2, j * 2).R;
-                    pixelInput[1] = lockBitmap.GetPixel(i * 2 + 1, j * 2).R;
-                    pixelInput[2] = lockBitmap.GetPixel(i * 2, j * 2 + 1).R;
-                    pixelInput[3] = lockBitmap.GetPixel(i * 2 + 1, j * 2 + 1).R;
+                    pixes[0] = lockBitmap.GetPixel(i * 2, j * 2);
+                    pixes[1] = lockBitmap.GetPixel(i * 2 + 1, j * 2);
+                    pixes[2] = lockBitmap.GetPixel(i * 2, j * 2 + 1);
+                    pixes[3] = lockBitmap.GetPixel(i * 2 + 1, j * 2 + 1);
 
-                    if (lal.liaoEncrypt(pixelInput, 5, 2, 3, bitmsg) != null) //parameter undefined
+                    for (int nrgb = 0; nrgb < cpp && looping; nrgb++)
                     {
-                        pixelInput = lal.liaoEncrypt(pixelInput, 5, 2, 3, bitmsg);
-                        if ((bitmsg.Length - 4 * lal.recentk) <= 0)
+                        switch (nrgb)
                         {
-                            looping = false;
+                            case 0:
+                                for (int pixIn = 0; pixIn < 4; pixIn++)
+                                {
+                                    pixelInput[pixIn] = pixes[pixIn].R;
+                                }
+                                break;
+                            case 1:
+                                for (int pixIn = 0; pixIn < 4; pixIn++)
+                                {
+                                    pixelInput[pixIn] = pixes[pixIn].G;
+                                }
+                                break;
+                            case 2:
+                                for (int pixIn = 0; pixIn < 4; pixIn++)
+                                {
+                                    pixelInput[pixIn] = pixes[pixIn].B;
+                                }
+                                break;
+                            default:
+                                break;
                         }
-                        else
-                        {
-                            BitArray temp = new BitArray(bitmsg.Length - 4 * lal.recentk);
-                            for (int k = 0; k < temp.Length; k++)
-                            {
-                                temp[k] = bitmsg[k + 4 * lal.recentk];
-                            }
-                            bitmsg = temp;
-                        }                       
 
-                        lockBitmap.SetPixel(i * 2, j * 2, System.Drawing.Color.FromArgb(pixelInput[0], pixelInput[0], pixelInput[0]));
-                        lockBitmap.SetPixel(i * 2 + 1, j * 2, System.Drawing.Color.FromArgb(pixelInput[1], pixelInput[1], pixelInput[1]));
-                        lockBitmap.SetPixel(i * 2, j * 2 + 1, System.Drawing.Color.FromArgb(pixelInput[2], pixelInput[2], pixelInput[2]));
-                        lockBitmap.SetPixel(i * 2 + 1, j * 2 + 1, System.Drawing.Color.FromArgb(pixelInput[3], pixelInput[3], pixelInput[3]));
+                        if (lal.liaoEncrypt(pixelInput, T, Kl, Kh, bitmsg) != null) //parameter undefined
+                        {
+                            pixelInput = lal.liaoEncrypt(pixelInput, T, Kl, Kh, bitmsg);
+                            if ((bitmsg.Length - 4 * lal.recentk) <= 0)
+                            {
+                                looping = false;
+                            }
+                            else
+                            {
+                                BitArray temp = new BitArray(bitmsg.Length - 4 * lal.recentk);
+                                for (int k = 0; k < temp.Length; k++)
+                                {
+                                    temp[k] = bitmsg[k + 4 * lal.recentk];
+                                }
+                                bitmsg = temp;
+                            }
+
+                            switch (nrgb)
+                            {
+                                case 0:
+                                    for (int pixIn = 0; pixIn < 4; pixIn++)
+                                    {
+                                        if (cpp == 3) pixes[pixIn] = System.Drawing.Color.FromArgb(pixelInput[pixIn], pixes[pixIn].G, pixes[pixIn].B);
+                                        else pixes[pixIn] = System.Drawing.Color.FromArgb(pixelInput[pixIn], pixelInput[pixIn], pixelInput[pixIn]);
+                                    }
+                                    break;
+                                case 1:
+                                    for (int pixIn = 0; pixIn < 4; pixIn++)
+                                    {
+                                        pixes[pixIn] = System.Drawing.Color.FromArgb(pixes[pixIn].R, pixelInput[pixIn], pixes[pixIn].B);
+                                    }
+                                    break;
+                                case 2:
+                                    for (int pixIn = 0; pixIn < 4; pixIn++)
+                                    {
+                                        pixes[pixIn] = System.Drawing.Color.FromArgb(pixes[pixIn].R, pixes[pixIn].G, pixelInput[pixIn]);
+                                    }
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
                     }
+                    lockBitmap.SetPixel(i * 2, j * 2, pixes[0]);
+                    lockBitmap.SetPixel(i * 2 + 1, j * 2, pixes[1]);
+                    lockBitmap.SetPixel(i * 2, j * 2 + 1, pixes[2]);
+                    lockBitmap.SetPixel(i * 2 + 1, j * 2 + 1, pixes[3]);                        
                 }
             }
-            lockBitmap.UnlockBits();            
+            lockBitmap.UnlockBits();
             BitmapSource bs = LiaoAlgorithm.ConvertBitmap(bmp);
             return bs;         
         }
@@ -236,7 +290,7 @@ namespace SteganosaurusWPF
             return file;
         }
 
-        public static FileTemp ExtractionWithAlgorithmLiao(string imagePath, string key)
+        public static FileTemp ExtractionWithAlgorithmLiao(string imagePath, string key, int T, int Kl, int Kh, int cpp)
         {
             LiaoAlgorithm lal = new LiaoAlgorithm();
             Bitmap bmp = (Bitmap)Image.FromFile(imagePath, true);
@@ -247,7 +301,8 @@ namespace SteganosaurusWPF
 
             BitArray namelength = new BitArray(32);
             List<bool> remain = new List<bool>();
-            BitArray result = new BitArray(lockBitmap.Height * lockBitmap.Width * 8);
+            BitArray result = new BitArray(lockBitmap.Height * lockBitmap.Width * 24);
+            System.Drawing.Color[] pixes = new System.Drawing.Color[4];
             //BitArray temp = new BitArray()
             int excount = 0;
 
@@ -255,18 +310,45 @@ namespace SteganosaurusWPF
             {
                 for (int j = 0; j < lockBitmap.Height / 2 && looping; j++)
                 {
-                    pixelInput[0] = lockBitmap.GetPixel(i * 2, j * 2).R;
-                    pixelInput[1] = lockBitmap.GetPixel(i * 2 + 1, j * 2).R;
-                    pixelInput[2] = lockBitmap.GetPixel(i * 2, j * 2 + 1).R;
-                    pixelInput[3] = lockBitmap.GetPixel(i * 2 + 1, j * 2 + 1).R;
+                    pixes[0] = lockBitmap.GetPixel(i * 2, j * 2);
+                    pixes[1] = lockBitmap.GetPixel(i * 2 + 1, j * 2);
+                    pixes[2] = lockBitmap.GetPixel(i * 2, j * 2 + 1);
+                    pixes[3] = lockBitmap.GetPixel(i * 2 + 1, j * 2 + 1);
 
-                    if (lal.liaoDecrypt(pixelInput, 5, 2, 3) != null) //parameter undefined
+                    for (int nrgb = 0; nrgb < cpp && looping; nrgb++)
                     {
-                        BitArray temp = new BitArray(lal.liaoDecrypt(pixelInput, 5, 2, 3));
-                        
-                        for (int k = 0; k < temp.Count; k++)
+                        switch (nrgb)
                         {
-                            result[excount++] = temp[k];
+                            case 0:
+                                for (int pixIn = 0; pixIn < 4; pixIn++)
+                                {
+                                    pixelInput[pixIn] = pixes[pixIn].R;
+                                }
+                                break;
+                            case 1:
+                                for (int pixIn = 0; pixIn < 4; pixIn++)
+                                {
+                                    pixelInput[pixIn] = pixes[pixIn].G;
+                                }
+                                break;
+                            case 2:
+                                for (int pixIn = 0; pixIn < 4; pixIn++)
+                                {
+                                    pixelInput[pixIn] = pixes[pixIn].B;
+                                }
+                                break;
+                            default:
+                                break;
+                        } 
+
+                        if (lal.liaoDecrypt(pixelInput, T, Kl, Kh) != null) //parameter undefined
+                        {
+                            BitArray temp = new BitArray(lal.liaoDecrypt(pixelInput, T, Kl, Kh));
+
+                            for (int k = 0; k < temp.Count; k++)
+                            {
+                                result[excount++] = temp[k];
+                            }
                         }
                     }
                 }

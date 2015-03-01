@@ -127,8 +127,15 @@ namespace SteganosaurusWPF
                                 ShowError("File Limit Error", "Your message file can't fit into the picture");
                             break;
                         case 1:
-                            bitmapSourceAfter = Steganography.InsertionWithAlgorithmLiao(filePicturePath, fileMessagePath, key);
-                            Console.WriteLine("liao stego success");
+                            int T = 5;
+                            int Kl = 2;
+                            int Kh = 3;
+                            Int32.TryParse(paramThreshold.Text, out T);
+                            Int32.TryParse(paramKlow.Text, out Kl);
+                            Int32.TryParse(paramKhigh.Text, out Kh);
+                            int cpp = 1;
+                            if (pixelformatbox.SelectedIndex == 0) cpp = 3;
+                            bitmapSourceAfter = Steganography.InsertionWithAlgorithmLiao(filePicturePath, fileMessagePath, key, T, Kl, Kh, cpp);
                             break;
                         case 2:
                             Steganography.InsertionWithAlgorithmSwain(filePicturePath, fileMessagePath, key);
@@ -176,12 +183,18 @@ namespace SteganosaurusWPF
                 switch (algorithmExtractComboBox.SelectedIndex)
                 {
                     case 0:
-                        Console.WriteLine("standard");
                         fileTemp = Steganography.ExtractionWithAlgorithmStandard(filePicturePath, key);
                         break;
                     case 1:
-                        Console.WriteLine("liao");                        
-                        fileTemp = Steganography.ExtractionWithAlgorithmLiao(filePicturePath, key);
+                        int T = 5;
+                        int Kl = 2;
+                        int Kh = 3;
+                        Int32.TryParse(xparamThreshold.Text, out T);
+                        Int32.TryParse(xparamKlow.Text, out Kl);
+                        Int32.TryParse(xparamKhigh.Text, out Kh);
+                        int cpp = 1;
+                        if (xpixelformatbox.SelectedIndex == 0) cpp = 3;
+                        fileTemp = Steganography.ExtractionWithAlgorithmLiao(filePicturePath, key, T, Kl, Kh, cpp);
                         break;
                     case 2:
                         //Steganography.InsertionWithAlgorithmSwain(filePicturePath, fileMessagePath, key);
