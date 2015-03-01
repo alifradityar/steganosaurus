@@ -28,14 +28,7 @@ namespace SteganosaurusWPF
 
         public byte[] liaoEncrypt(byte[] pixels, int T, int Kl, int Kh, BitArray bitmsg) {
             float D;
-            int k;
-            /*
-            BitArray bitmsg = new BitArray(msg);
-            foreach (Object obj in bitmsg)
-            {
-                Debug.Write(obj + " ");
-            }
-             * */
+            int k;            
             //Step1
             int[] convd = Array.ConvertAll(pixels, c => (int)c);
             D = calculateDiff(convd);
@@ -168,8 +161,7 @@ namespace SteganosaurusWPF
             {
                 sum += (int)pixels[i] - ymin;
             }
-            float result = (float)sum / 3;
-           // Debug.WriteLine("Result diff : " + result);            
+            float result = (float)sum / 3;           
             return result;
         }
 
@@ -213,54 +205,10 @@ namespace SteganosaurusWPF
             int moddiff = Math.Abs(intmod-intori);
             int mod2diff = Math.Abs(intmod2-intori);
 
-            Debug.WriteLine("modlsbs : " + intori + "," + intmsg + "," + intmod + "," + intmod2);
             int result = Math.Min(msgdiff, Math.Min(moddiff, mod2diff));
             if (result == msgdiff) return (byte)intmsg;
             else if (result == moddiff) return (byte)intmod;
             else return (byte)intmod2;
-        }
-        /*
-        static void Main(string[] args)
-        {
-            
-            Bitmap bmp = (Bitmap)Image.FromFile(@"D:/peppers.bmp", true);
-            LockBitmap lockBitmap = new LockBitmap(bmp);
-            lockBitmap.LockBits();
- 
-            Color compareClr = Color.FromArgb(0,0,0,0);
-            byte newclr;
-    
-            for (int y = 0; y < lockBitmap.Height; y++)
-            {
-                for (int x = 0; x < lockBitmap.Width; x++)
-                {
-                    compareClr = lockBitmap.GetPixel(x, y);
-                    newclr = compareClr.R;
-                    if (compareClr.R < 200) {
-                        newclr++;
-                    } else {
-                        newclr--;
-                    }
-                    lockBitmap.SetPixel(x, y, Color.FromArgb(newclr, newclr, newclr));
-                }
-            }
-            lockBitmap.UnlockBits();
-            bmp.Save("newpeppers.bmp");
-            
-            LiaoAlgorithm it = new LiaoAlgorithm();
-            byte[] newbtest = {139,146,137,142};
-            bool[] inputarray1 = { false, false, false, true, true, true, true, true };
-            bool[] inputarray2 = { true, true, false, true, false, false, false, false };
-            BitArray inp1 = new BitArray(inputarray1);
-            BitArray inp2 = new BitArray(inputarray2);
-            byte[] inputt = {it.ConvertToByte(inp1), it.ConvertToByte(inp2) };
-            
-            newbtest = it.liaoEncrypt(newbtest, 5, 2, 3, inputt);
-            Debug.WriteLine("Final Result :");
-            for (int i = 0; i < 4; i++)
-            {
-                Debug.WriteLine(newbtest[i]);
-            }   
-        }*/
+        }        
     }
 }
