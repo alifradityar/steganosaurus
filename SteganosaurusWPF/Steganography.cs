@@ -36,7 +36,7 @@ namespace SteganosaurusWPF
             int nStride = (bitmapImage.PixelWidth * bitmapImage.Format.BitsPerPixel + 7) / 8;
             byte[] pixels = new byte[bitmapImage.PixelHeight * nStride];
             bitmapImage.CopyPixels(pixels, nStride, 0);
-            
+            Console.WriteLine("Capacity = " +  pixels.Length);
             // Create extended message
 
             string fileName = Path.GetFileName(messagePath);
@@ -156,7 +156,7 @@ namespace SteganosaurusWPF
         public static double CalculatePSNR(string imagePath1, string imagePath2)
         {
             // Read pixel image before
-            Console.WriteLine("Halo 1");
+            // Console.WriteLine("Halo 1");
             BitmapImage bitmapImage = new BitmapImage(new Uri(imagePath1));
             int height = bitmapImage.PixelHeight;
             int width = bitmapImage.PixelWidth;
@@ -165,7 +165,7 @@ namespace SteganosaurusWPF
             bitmapImage.CopyPixels(pixels, nStride, 0);
 
             // Read pixel image after
-            Console.WriteLine("Halo 2");
+            // Console.WriteLine("Halo 2");
             BitmapImage bitmapImage2 = new BitmapImage(new Uri(imagePath2));
             int height2 = bitmapImage2.PixelHeight;
             int width2 = bitmapImage2.PixelWidth;
@@ -173,7 +173,7 @@ namespace SteganosaurusWPF
             byte[] pixels2 = new byte[bitmapImage2.PixelHeight * nStride];
             bitmapImage2.CopyPixels(pixels2, nStride2, 0);
 
-            Console.WriteLine("Halo 3");
+            // Console.WriteLine("Halo 3");
             double totalDif = 0;
             for (int i = 0; i < pixels.Length; i++)
             {
@@ -182,6 +182,7 @@ namespace SteganosaurusWPF
             }
             double rms = Math.Sqrt(totalDif);
             double psnr = 20 * Math.Log10(256 / rms);
+            Console.WriteLine("PSNR = " + psnr);
             return psnr;
         }
     }
