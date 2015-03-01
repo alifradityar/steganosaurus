@@ -16,7 +16,6 @@ using System.Windows.Shapes;
 
 namespace SteganosaurusWPF
 {
-    
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -127,10 +126,11 @@ namespace SteganosaurusWPF
                                 ShowError("File Limit Error", "Your message file can't fit into the picture");
                             break;
                         case 1:
-                            Steganography.InsertionWithAlgorithmLiao(filePicturePath, fileMessagePath, key);
+                            bitmapSourceAfter = Steganography.InsertionWithAlgorithmLiao(filePicturePath, fileMessagePath, key);
+                            Console.WriteLine("liao stego success");
                             break;
                         case 2:
-                            Steganography.InsertionWithAlgorithmSwain(filePicturePath, fileMessagePath, key);
+                            bitmapSourceAfter = Steganography.InsertionWithAlgorithmSwain(filePicturePath, fileMessagePath, key);
                             break;
                         default:
                                 ShowError("Form Error", "Please select the algoritm");
@@ -173,16 +173,18 @@ namespace SteganosaurusWPF
             else
             {
                 FileTemp fileTemp = null;
-                switch (algorithmComboBox.SelectedIndex)
+                switch (algorithmExtractComboBox.SelectedIndex)
                 {
                     case 0:
+                        Console.WriteLine("standard");
                         fileTemp = Steganography.ExtractionWithAlgorithmStandard(filePicturePath, key);
                         break;
                     case 1:
-                        //Steganography.InsertionWithAlgorithmLiao(filePicturePath, fileMessagePath, key);
+                        Console.WriteLine("liao");                        
+                        fileTemp = Steganography.ExtractionWithAlgorithmLiao(filePicturePath, key);
                         break;
                     case 2:
-                        //Steganography.InsertionWithAlgorithmSwain(filePicturePath, fileMessagePath, key);
+                        fileTemp = Steganography.ExtractionWithAlgorithmSwain(filePicturePath, key);
                         break;
                     default:
                         ShowError("Form Error", "Please select the algoritm");
