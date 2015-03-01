@@ -16,7 +16,6 @@ using System.Windows.Shapes;
 
 namespace SteganosaurusWPF
 {
-    
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -138,7 +137,7 @@ namespace SteganosaurusWPF
                             bitmapSourceAfter = Steganography.InsertionWithAlgorithmLiao(filePicturePath, fileMessagePath, key, T, Kl, Kh, cpp);
                             break;
                         case 2:
-                            Steganography.InsertionWithAlgorithmSwain(filePicturePath, fileMessagePath, key);
+                            bitmapSourceAfter = Steganography.InsertionWithAlgorithmSwain(filePicturePath, fileMessagePath, key);
                             break;
                         default:
                                 ShowError("Form Error", "Please select the algoritm");
@@ -155,10 +154,10 @@ namespace SteganosaurusWPF
                         {
                             BitmapEncoder encoder = new BmpBitmapEncoder();
                             encoder.Frames.Add(BitmapFrame.Create(bitmapSourceAfter));
-                            encoder.Save(fileStream);
+                            encoder.Save(fileStream);   
                         }
+                        PRNSLabel.Text = Steganography.CalculatePSNR(filePicturePath, fileName) + " dB";
                     }
-
                 }
             }
         }
@@ -197,7 +196,7 @@ namespace SteganosaurusWPF
                         fileTemp = Steganography.ExtractionWithAlgorithmLiao(filePicturePath, key, T, Kl, Kh, cpp);
                         break;
                     case 2:
-                        //Steganography.InsertionWithAlgorithmSwain(filePicturePath, fileMessagePath, key);
+                        fileTemp = Steganography.ExtractionWithAlgorithmSwain(filePicturePath, key);
                         break;
                     default:
                         ShowError("Form Error", "Please select the algoritm");
@@ -207,7 +206,10 @@ namespace SteganosaurusWPF
                 string fileName = ShowSaveFileDialog(fileTemp.Name, "", "All file|*.*");
                 if (fileName != null)
                 {
+                    //Console.WriteLine(fileName);
                     File.WriteAllBytes(fileName, fileTemp.Data);
+
+                    
                 }
             }
         }
