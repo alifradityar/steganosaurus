@@ -14,7 +14,7 @@ namespace SteganosaurusWPF
 {
     class Steganography
     {
-        private static int byteCnt, bitCnt;
+        private static int byteCnt, bitCnt, cap;
 
         public static bool CanDoInsertionWithAlgorithmStandard(string imagePath, string messagePath)
         {
@@ -484,6 +484,65 @@ namespace SteganosaurusWPF
             return file;
         }
 
+        public static bool CanDoInsertionWithAlgorithmSwain(string imagePath, string messagePath)
+        {
+            BitmapImage bitmapImage = new BitmapImage(new Uri(imagePath));
+            int height = bitmapImage.PixelHeight;
+            int width = bitmapImage.PixelWidth;
+            int nStride = (bitmapImage.PixelWidth * bitmapImage.Format.BitsPerPixel + 7) / 8;
+            byte[] messageBytes = File.ReadAllBytes(messagePath);
+            string fileName = Path.GetFileName(messagePath);
+            byte[] pixels = new byte[bitmapImage.PixelHeight * nStride];
+            bitmapImage.CopyPixels(pixels, nStride, 0);
+
+            // calculate capacity
+            cap = 0;
+            // process per block
+            for (int i = 0; i < pixels.Length - 8; i += 9)
+            {
+                // copy pixels to block
+                byte[] x = new byte[9];
+                x[0] = pixels[i];
+                x[1] = pixels[i + 1];
+                x[2] = pixels[i + 2];
+                x[3] = pixels[i + 3];
+                x[4] = pixels[i + 4];
+                x[5] = pixels[i + 5];
+                x[6] = pixels[i + 6];
+                x[7] = pixels[i + 7];
+                x[8] = pixels[i + 8];
+
+                // find xmin
+                byte xmin = x[0];
+                for (int j = 1; j < 9; j++)
+                    xmin = Math.Max(xmin, x[j]);
+
+                // find d
+                int d = 0;
+                for (int j = 0; j < 9; j++)
+                    d = d + Math.Abs(x[j] - xmin);
+                d = d / 8;
+
+                // find n
+                int n = 0;
+                if (d < 8) // 2-bit
+                    cap += 16;
+                else if (d < 16) // 3-bit 
+                    cap += 25;
+                else if (d < 32) // 4-bit 
+                    cap += 34;
+                else // 5-bit 
+                    cap += 43;
+            }
+
+            if ((4 + fileName.Length * 2 + 4 + messageBytes.Length) * 8 <= cap)
+            {
+                return true;
+            }
+            else return false;
+        }
+
+
         public static int s2(int x)
         {
             int ret = 1;
@@ -543,38 +602,38 @@ namespace SteganosaurusWPF
             {
                 x[8] = x[8].SetBit(0, false);
                 x[8] = x[8].SetBit(1, false);
+                cap = cap + 16;
             }
             else if (n == 3)
             {
                 x[8] = x[8].SetBit(0, true);
                 x[8] = x[8].SetBit(1, false);
+                cap = cap + 25;
             }
             else if (n == 4)
             {
                 x[8] = x[8].SetBit(0, false);
                 x[8] = x[8].SetBit(1, true);
+                cap = cap + 34;
             }
             else if (n == 5)
             {
                 x[8] = x[8].SetBit(0, true);
                 x[8] = x[8].SetBit(1, true);
+                cap = cap + 43;
             }
 
             int cnt = 0;
             for (int i = 0; i < 9; i++)
             {
-                for (int j = n-1; j >= 0; j--)
-                    if (i == 8 && (j == n - 1 || j == n - 2))
+                for (int j = 0; j < n; j++)
+                    if (i == 8 && (j == 0 || j == 1))
                         continue;
                     else
                     {
                         if (byteCnt >= message.Length)
                             break;
                         cnt++;
-                        if (message[byteCnt].GetBit(bitCnt))
-                            Console.Write(1);
-                        else
-                            Console.Write(0);
                         x[i] = x[i].SetBit(j, message[byteCnt].GetBit(bitCnt));
                         bitCnt++;
                         if (bitCnt == 8)
@@ -585,12 +644,7 @@ namespace SteganosaurusWPF
                     }
                 if (byteCnt >= message.Length)
                     break;
-            }/*
-            Console.Write(message.Length);
-            Console.Write(' ');
-            Console.Write(n);
-            Console.Write(' ');
-            Console.WriteLine(cnt);*/
+            }
 
             return x;
         }
@@ -600,16 +654,12 @@ namespace SteganosaurusWPF
             // find xmin
             byte xmin = x[0];
             for (int j = 1; j < 9; j++)
-            {
                 xmin = Math.Max(xmin, x[j]);
-            }
 
             // find d
             int d = 0;
             for (int j = 0; j < 9; j++)
-            {
                 d = d + Math.Abs(x[j] - xmin);
-            }
             d = d / 8;
 
             // find n
@@ -622,9 +672,8 @@ namespace SteganosaurusWPF
                 n = 4;
             else // 5-bit 
                 n = 5;
-
+            
 //            return z(y,x,n);
-            Console.WriteLine();
             return y(x, n, message);
         }
 
@@ -678,6 +727,7 @@ namespace SteganosaurusWPF
             // Inserting message
             byteCnt = 0;
             bitCnt = 0;
+            cap = 0;
             // process per block
             for (int i = 0; i < pixels.Length-8; i += 9)
             {
@@ -715,21 +765,17 @@ namespace SteganosaurusWPF
 
         public static byte[] x(byte[] y, int n, int size)
         {
-            byte[] ret = new byte[size];
+            byte[] ret = new byte[(int)Math.Ceiling((double)size/(double)8)];
             int byteCnt2 = 0;
             int bitCnt2 = 0;
             for (int i = 0; i < 9; i++)
             {
-                for (int j = n - 1; j >= 0; j--)
-                    if (i == 8 && (j == n - 1 || j == n - 2))
+                for (int j = 0; j < n; j++)
+                    if (i == 8 && (j == 0 || j == 1))
                         continue;
                     else
                     {
-                        if (y[i].GetBit(j))
-                            Console.Write(1);
-                        else
-                            Console.Write(0);
-                        //x[i] = x[i].SetBit(j, message[byteCnt].GetBit(bitCnt));
+                        cap++;
                         ret[byteCnt2] = ret[byteCnt2].SetBit(bitCnt2, y[i].GetBit(j));
                         bitCnt2++;
                         if (bitCnt2 == 8)
@@ -753,7 +799,6 @@ namespace SteganosaurusWPF
                 n = 4;
             else if (s[8].GetBit(0) && s[8].GetBit(1)) // 5-bit
                 n = 5;
-            Console.WriteLine();
             return x(s, n, n * 9 - 2);
         }
 
@@ -778,6 +823,7 @@ namespace SteganosaurusWPF
             // process per block
             for (int i = 0; i < pixels.Length - 8; i += 9)
             {
+                cap = 0;
                 // copy pixels to block
                 byte[] block = new byte[9];
                 block[0] = pixels[i];
@@ -795,8 +841,16 @@ namespace SteganosaurusWPF
                 for (int j = 0; j < prevMessage.Length; j++)
                     messageExtended[j] = prevMessage[j];
                 for (int j = 0; j < newMessage.Length; j++)
-                    messageExtended[j + prevMessage.Length] = newMessage[j];
-                if (process == 0 && messageExtended.Length >= 32)
+                {
+                    for (int k = 0; k < 8; k++)
+                    {
+                        if (j * 8 + k >= cap)
+                            break;
+                        messageExtended[bitCnt / 8] = messageExtended[bitCnt / 8].SetBit(bitCnt % 8, newMessage[j].GetBit(k));
+                        bitCnt++;
+                    }
+                }
+                if (process == 0 && bitCnt >= 32)
                 {
                     process++;
                     fileNameLengthBytes = new byte[4];
@@ -806,9 +860,8 @@ namespace SteganosaurusWPF
                         byteCnt++;
                     }
                     filenameLength = BitConverter.ToInt16(fileNameLengthBytes, 0);
-//                    Console.WriteLine(filenameLength);
                 }
-                else if (process == 1 && messageExtended.Length >= filenameLength * 8)
+                else if (process == 1 && bitCnt >= (filenameLength * 2 + 4)*8)
                 {
                     process++;
                     fileNameBytes = new byte[filenameLength * 2];
@@ -820,11 +873,10 @@ namespace SteganosaurusWPF
                     fileName = "";
                     for (int j = 0; j < filenameLength * 2; j += 2)
                     {
-                        fileName = fileName + BitConverter.ToChar(fileNameBytes, i);
+                        fileName = fileName + BitConverter.ToChar(fileNameBytes, j);
                     }
-                    Console.WriteLine(fileName);
                 }
-                else if (process == 2 && messageExtended.Length >= 32)
+                else if (process == 2 && bitCnt >= (filenameLength * 2 + 8) * 8)
                 {
                     process++;
                     messageLengthBytes = new byte[4];
@@ -835,7 +887,7 @@ namespace SteganosaurusWPF
                     }
                     messagelength = BitConverter.ToInt32(messageLengthBytes, 0);
                 }
-                else if (process == 3 && messageExtended.Length >= messagelength * 8)
+                else if (process == 3 && bitCnt >= (messagelength + filenameLength * 2 + 8) * 8)
                 {
                     messageBytesBeforeDecrypt = new byte[messagelength];
                     for (int j = 0; j < messagelength; j++)

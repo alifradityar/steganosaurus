@@ -137,7 +137,10 @@ namespace SteganosaurusWPF
                             bitmapSourceAfter = Steganography.InsertionWithAlgorithmLiao(filePicturePath, fileMessagePath, key, T, Kl, Kh, cpp);
                             break;
                         case 2:
-                            bitmapSourceAfter = Steganography.InsertionWithAlgorithmSwain(filePicturePath, fileMessagePath, key);
+                            if (Steganography.CanDoInsertionWithAlgorithmSwain(filePicturePath, fileMessagePath))
+                                bitmapSourceAfter = Steganography.InsertionWithAlgorithmSwain(filePicturePath, fileMessagePath, key);
+                            else
+                                ShowError("File Limit Error", "Your message file can't fit into the picture");
                             break;
                         default:
                                 ShowError("Form Error", "Please select the algoritm");
