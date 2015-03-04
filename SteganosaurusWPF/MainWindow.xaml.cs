@@ -156,7 +156,7 @@ namespace SteganosaurusWPF
                             encoder.Frames.Add(BitmapFrame.Create(bitmapSourceAfter));
                             encoder.Save(fileStream);   
                         }
-                        PRNSLabel.Text = Steganography.CalculatePSNR2(filePicturePath, fileName) + " dB";
+                        PRNSLabel.Text = Steganography.CalculatePSNR(filePicturePath, fileName) + " dB";
                     }
                 }
             }

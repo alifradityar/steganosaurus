@@ -26,6 +26,18 @@ namespace SteganosaurusWPF
             return bytes[0];
         }
 
+        public int Capacity(byte[] pixels, int T, int Kl, int Kh)
+        {
+            float D;
+            int k;
+            //Step1
+            int[] convd = Array.ConvertAll(pixels, c => (int)c);
+            D = calculateDiff(convd);
+            //Step2
+            k = thresholding(D, T, Kl, Kh);
+            return 4*k;
+        }
+
         public byte[] liaoEncrypt(byte[] pixels, int T, int Kl, int Kh, BitArray bitmsg) {
             float D;
             int k;            
