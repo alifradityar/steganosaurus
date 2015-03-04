@@ -143,6 +143,48 @@ namespace SteganosaurusWPF
             System.Drawing.Color[] pixes = new System.Drawing.Color[4];
             byte[] pixelInput = new byte[4];
             bool looping = true;
+            int imgcapacity = 0;
+            //capacity counting
+            for (int i = 0; (i < lockBitmap.Width / 2) && looping; i++)
+            {
+                for (int j = 0; j < lockBitmap.Height / 2 && looping; j++)
+                {
+                    pixes[0] = lockBitmap.GetPixel(i * 2, j * 2);
+                    pixes[1] = lockBitmap.GetPixel(i * 2 + 1, j * 2);
+                    pixes[2] = lockBitmap.GetPixel(i * 2, j * 2 + 1);
+                    pixes[3] = lockBitmap.GetPixel(i * 2 + 1, j * 2 + 1);
+
+                    for (int nrgb = 0; nrgb < cpp && looping; nrgb++)
+                    {
+                        switch (nrgb)
+                        {
+                            case 0:
+                                for (int pixIn = 0; pixIn < 4; pixIn++)
+                                {
+                                    pixelInput[pixIn] = pixes[pixIn].R;
+                                }
+                                break;
+                            case 1:
+                                for (int pixIn = 0; pixIn < 4; pixIn++)
+                                {
+                                    pixelInput[pixIn] = pixes[pixIn].G;
+                                }
+                                break;
+                            case 2:
+                                for (int pixIn = 0; pixIn < 4; pixIn++)
+                                {
+                                    pixelInput[pixIn] = pixes[pixIn].B;
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                        imgcapacity += lal.Capacity(pixelInput, T, Kl, Kh); 
+                    }
+                }
+            }
+            //end of capacity counting
+            Console.WriteLine("capacity : " + imgcapacity);
             for (int i = 0; (i < lockBitmap.Width / 2) && looping; i++)
             {
                 for (int j = 0; j < lockBitmap.Height/2 && looping; j++)
